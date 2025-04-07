@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Resultados - Spotify Playlist Manager</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { padding-top: 2rem; }
+        .container { max-width: 700px; }
+        .track-list { list-style-type: none; padding-left: 0; }
+        .track-list li { background-color: #f8f9fa; margin-bottom: 5px; padding: 8px 12px; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Resultados del Proceso</h1>
+
+        {% if result and not result.get('error') %}
+            <div class="alert alert-success" role="alert">
+                ¡Proceso completado con éxito!
+            </div>
+
+            <p><strong>Playlist URL:</strong> <a href="{{ result.playlist_url }}" target="_blank">{{ result.playlist_url }}</a></p>
+            <p><strong>Tracks añadidos:</strong> {{ result.found_tracks_count }}</p>
+
+            {% if result.not_found_tracks %}
+                <h2>Tracks no encontrados:</h2>
+                <p>Los siguientes tracks no pudieron ser encontrados en Spotify:</p>
+                <ul class="track-list">
+                    {% for track in result.not_found_tracks %}
+                        <li><strong>Track:</strong> {{ track.track }} | <strong>Artista:</strong> {{ track.artist }} | <strong>Album:</strong> {{ track.album }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>¡Todos los tracks del archivo JSON fueron encontrados y añadidos!</p>
+            {% endif %}
+
+        {% elif result and result.get('error') %}
+             <div class="alert alert-danger" role="alert">
+                <strong>Error:</strong> {{ result.error }}
+            </div>
+        {% else %}
+             <div class="alert alert-warning" role="alert">
+                No se encontraron resultados para mostrar.
+            </div>
+        {% endif %}
+
+        <hr>
+        <a href="{{ url_for('index') }}" class="btn btn-secondary">Volver al inicio</a>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 
