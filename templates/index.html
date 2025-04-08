@@ -3,165 +3,242 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Spotify Playlist Manager</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Spotify Playlist Manager IA</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
-        body { padding-top: 2rem; }
-        .container { max-width: 600px; }
-        .credentials-section { display: none; border: 1px solid #ccc; padding: 15px; margin-bottom: 15px; border-radius: 5px; }
-        .alert { margin-top: 1rem; }
+        body {
+            padding-top: 2rem;
+            padding-bottom: 4rem; /* Espacio para el footer */
+            background-color: #f8f9fa; /* Un fondo suave */
+        }
+        .container {
+            max-width: 700px; /* Un poco más ancho */
+        }
+        .card {
+            margin-top: 1rem;
+            box-shadow: 0 4px 8px rgba(0,0,0,.05);
+        }
+        .card-header {
+            background-color: #e9ecef;
+            font-weight: bold;
+        }
+        .credentials-section {
+            /* Quitar borde anterior, ya está dentro de una tarjeta */
+            padding: 15px 0; /* Ajustar padding */
+            margin-bottom: 0;
+            border-radius: 0;
+        }
+        .alert { margin-top: 1.5rem; }
+        footer {
+            margin-top: 3rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #dee2e6;
+            font-size: 0.9em;
+            color: #6c757d;
+        }
+        .form-check-label {
+            margin-left: 0.25rem;
+        }
+        .form-label.mt-2 { margin-top: 0.75rem !important; } /* Ajustar margen */
+        code { background-color: #e9ecef; padding: 0.2em 0.4em; border-radius: 3px; }
+        #credentials-section h5 { margin-bottom: 1rem; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Gestor de Playlists de Spotify</h1>
+        <div class="text-center mb-4">
+             <i class="bi bi-spotify" style="font-size: 3rem; color: #1DB954;"></i>
+             <h1 class="display-5 mt-2">Gestor de Playlists <br><small class="text-muted">con IA</small></h1>
+        </div>
+
 
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
                 <div class="alert alert-{{ category if category != 'message' else 'info' }} alert-dismissible fade show" role="alert">
-                    {{ message }}
+                    <i class="bi bi-info-circle-fill me-2"></i> {{ message }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
                 {% endfor %}
             {% endif %}
         {% endwith %}
 
-        <form method="post" enctype="multipart/form-data">
+        <div class="card">
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
 
-            <div class="mb-3">
-                <button type="button" class="btn btn-secondary btn-sm" onclick="toggleCredentials()">Mostrar/Ocultar Credenciales Spotify</button>
-            </div>
+                    <!-- Sección Credenciales (Colapsable) -->
+                    <div class="accordion mb-4" id="accordionCredentials">
+                      <div class="accordion-item">
+                        <h2 class="accordion-header">
+                          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCredentials" aria-expanded="false" aria-controls="collapseCredentials">
+                             <i class="bi bi-key-fill me-2"></i> Credenciales API Spotify
+                          </button>
+                        </h2>
+                        <div id="collapseCredentials" class="accordion-collapse collapse" data-bs-parent="#accordionCredentials">
+                          <div class="accordion-body credentials-section">
+                            <p class="small text-muted">Puedes obtenerlas en el <a href="https://developer.spotify.com/dashboard/" target="_blank">Dashboard de Desarrollador de Spotify</a>. Asegúrate de añadir la Redirect URI (por defecto <code>http://localhost:5000/callback</code>) a la configuración de tu App en Spotify.</p>
+                            <div class="mb-3">
+                                <label for="client_id" class="form-label">Client ID</label>
+                                <input type="password" class="form-control" id="client_id" name="client_id" value="{{ credentials.client_id }}" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="client_secret" class="form-label">Client Secret</label>
+                                <input type="password" class="form-control" id="client_secret" name="client_secret" value="{{ credentials.client_secret }}" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="redirect_uri" class="form-label">Redirect URI</label>
+                                <input type="text" class="form-control" id="redirect_uri" name="redirect_uri" value="{{ credentials.redirect_uri if credentials.redirect_uri else 'http://localhost:5000/callback' }}" required>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
 
-            <div id="credentials-section" class="credentials-section mb-3">
-                <h5>Credenciales de Spotify</h5>
-                <p><small>Puedes obtenerlas en el <a href="https://developer.spotify.com/dashboard/" target="_blank">Dashboard de Desarrollador de Spotify</a>. Asegúrate de añadir la Redirect URI que configures aquí (por defecto <code>http://localhost:5000/callback</code>) a la configuración de tu App en Spotify.</small></p>
-                <div class="mb-3">
-                    <label for="client_id" class="form-label">Client ID</label>
-                    <input type="password" class="form-control" id="client_id" name="client_id" value="{{ credentials.client_id }}" required>
-                </div>
-                <div class="mb-3">
-                    <label for="client_secret" class="form-label">Client Secret</label>
-                    <input type="password" class="form-control" id="client_secret" name="client_secret" value="{{ credentials.client_secret }}" required>
-                </div>
-                <div class="mb-3">
-                    <label for="redirect_uri" class="form-label">Redirect URI</label>
-                    <input type="text" class="form-control" id="redirect_uri" name="redirect_uri" value="{{ credentials.redirect_uri if credentials.redirect_uri else 'http://localhost:5000/callback' }}" required>
-                </div>
-            </div>
+                     <!-- Sección Acción Playlist -->
+                     <fieldset class="mb-4">
+                        <legend class="h6 mb-3"><i class="bi bi-music-note-list me-2"></i>Acción de Playlist</legend>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" id="new_playlist" name="playlist_option" value="new" checked onchange="togglePlaylistInputs()">
+                            <label class="form-check-label" for="new_playlist">Crear nueva playlist</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" id="existing_playlist" name="playlist_option" value="existing" onchange="togglePlaylistInputs()">
+                            <label class="form-check-label" for="existing_playlist">Añadir a playlist existente</label>
+                        </div>
+                    </fieldset>
 
-            <div class="mb-3">
-                <label class="form-label">Acción de Playlist</label>
-                <div>
-                    <input type="radio" id="new_playlist" name="playlist_option" value="new" checked onchange="togglePlaylistInputs()">
-                    <label for="new_playlist">Crear nueva playlist</label>
-                </div>
-                <div>
-                    <input type="radio" id="existing_playlist" name="playlist_option" value="existing" onchange="togglePlaylistInputs()">
-                    <label for="existing_playlist">Añadir a playlist existente</label>
-                </div>
-            </div>
+                    <!-- Inputs Nueva Playlist -->
+                    <div id="new-playlist-input" class="mb-4 border p-3 rounded bg-light">
+                         <h6 class="mb-3"><i class="bi bi-plus-circle-fill me-2"></i>Detalles Nueva Playlist</h6>
+                        <div class="mb-3">
+                            <label for="playlist_name" class="form-label">Nombre</label>
+                            <input type="text" class="form-control" id="playlist_name" name="playlist_name" placeholder="Ej: Mi Playlist Chill" value="">
+                        </div>
+                        <div>
+                            <label for="playlist_description" class="form-label">Descripción (Opcional)</label>
+                            <textarea class="form-control" id="playlist_description" name="playlist_description" rows="2" placeholder="Ej: Canciones perfectas para relajarse..."></textarea>
+                        </div>
+                    </div>
 
-            <div id="new-playlist-input" class="mb-3">
-                <label for="playlist_name" class="form-label">Nombre Nueva Playlist</label>
-                <input type="text" class="form-control" id="playlist_name" name="playlist_name" value="">
-                <label for="playlist_description" class="form-label mt-2">Descripción Nueva Playlist (Opcional)</label>
-                <textarea class="form-control" id="playlist_description" name="playlist_description" rows="2" placeholder="Descripción personalizada para la playlist..."></textarea>
-            </div>
+                    <!-- Input Playlist Existente -->
+                    <div id="existing-playlist-input" class="mb-4 border p-3 rounded bg-light" style="display: none;">
+                         <h6 class="mb-3"><i class="bi bi-box-arrow-in-right me-2"></i>Playlist Existente</h6>
+                        <div class="mb-3">
+                            <label for="playlist_url" class="form-label">URL Playlist Existente</label>
+                            <input type="url" class="form-control" id="playlist_url" name="playlist_url" placeholder="https://open.spotify.com/playlist/...">
+                        </div>
+                         <!-- Opciones Duplicados (dentro de existente) -->
+                        <div id="existing-playlist-options">
+                             <label class="form-label">¿Qué hacer con canciones duplicadas?</label>
+                             <div class="form-check">
+                                 <input class="form-check-input" type="radio" id="add_all" name="duplicate_option" value="add_all" checked>
+                                 <label class="form-check-label" for="add_all">Añadir todas (incluso si ya existen)</label>
+                             </div>
+                             <div class="form-check">
+                                 <input class="form-check-input" type="radio" id="add_new" name="duplicate_option" value="add_new">
+                                 <label class="form-check-label" for="add_new">Añadir solo las nuevas</label>
+                             </div>
+                         </div>
+                    </div>
 
-            <div id="existing-playlist-input" class="mb-3" style="display: none;">
-                <label for="playlist_url" class="form-label">URL Playlist Existente</label>
-                <input type="url" class="form-control" id="playlist_url" name="playlist_url" placeholder="https://open.spotify.com/playlist/...">
-            </div>
 
-            <div class="mb-3">
-                <label class="form-label">Fuente de Tracks</label>
-                <div>
-                    <input type="radio" id="source_file" name="track_source" value="file" checked onchange="toggleTrackSourceInputs()">
-                    <label for="source_file">Subir archivo JSON</label>
-                </div>
-                <div>
-                    <input type="radio" id="source_paste" name="track_source" value="paste" onchange="toggleTrackSourceInputs()">
-                    <label for="source_paste">Pegar contenido JSON</label>
-                </div>
-            </div>
+                    <!-- Sección Fuente de Tracks -->
+                    <fieldset class="mb-4">
+                        <legend class="h6 mb-3"><i class="bi bi-file-earmark-music-fill me-2"></i>Fuente de Tracks (JSON)</legend>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" id="source_file" name="track_source" value="file" checked onchange="toggleTrackSourceInputs()">
+                            <label class="form-check-label" for="source_file">Subir archivo .json</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" id="source_paste" name="track_source" value="paste" onchange="toggleTrackSourceInputs()">
+                            <label class="form-check-label" for="source_paste">Pegar contenido JSON</label>
+                        </div>
+                    </fieldset>
 
-            <div id="json-file-input" class="mb-3">
-                <label for="json_file" class="form-label">Archivo de Tracks (.json)</label>
-                <input class="form-control" type="file" id="json_file" name="json_file" accept=".json">
-            </div>
+                     <!-- Input Subir Archivo -->
+                    <div id="json-file-input" class="mb-3">
+                        <label for="json_file" class="form-label"><i class="bi bi-upload me-2"></i>Selecciona el archivo</label>
+                        <input class="form-control" type="file" id="json_file" name="json_file" accept=".json">
+                    </div>
 
-            <div id="json-paste-input" class="mb-3" style="display: none;">
-                <label for="json_content" class="form-label">Contenido JSON de Tracks</label>
-                <textarea class="form-control" id="json_content" name="json_content" rows="5"></textarea>
-            </div>
+                    <!-- Input Pegar JSON -->
+                    <div id="json-paste-input" class="mb-3" style="display: none;">
+                        <label for="json_content" class="form-label"><i class="bi bi-clipboard-plus-fill me-2"></i>Pega el contenido JSON aquí</label>
+                        <textarea class="form-control font-monospace" id="json_content" name="json_content" rows="8" placeholder='[{"track": "Song Title", "artist": "Artist Name"}, ...]'></textarea>
+                    </div>
 
-            <div id="existing-playlist-options" class="mb-3" style="display: none;">
-                 <label class="form-label">Opciones para Playlist Existente</label>
-                 <div>
-                     <input type="radio" id="add_all" name="duplicate_option" value="add_all" checked>
-                     <label for="add_all">Añadir todas las canciones encontradas (incluso si ya existen)</label>
-                 </div>
-                 <div>
-                     <input type="radio" id="add_new" name="duplicate_option" value="add_new">
-                     <label for="add_new">Añadir solo las canciones nuevas (que no están en la playlist)</label>
-                 </div>
-             </div>
 
-            <button type="submit" class="btn btn-primary">Procesar Playlist</button>
-        </form>
-    </div>
+                    <div class="d-grid gap-2 mt-4">
+                      <button type="submit" class="btn btn-primary btn-lg"><i class="bi bi-check-circle-fill me-2"></i>Procesar Playlist</button>
+                    </div>
+                </form>
+            </div> <!-- Fin card-body -->
+        </div> <!-- Fin card -->
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <footer class="text-center">
+            <p>Desarrollado con <i class="bi bi-heart-fill text-danger"></i>. Código fuente en <a href="https://github.com/marcegl/playlist-spotify" target="_blank"><i class="bi bi-github"></i> GitHub</a>.</p>
+        </footer>
+    </div> <!-- Fin container -->
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
     <script>
-        function toggleCredentials() {
-            var section = document.getElementById('credentials-section');
-            if (section.style.display === 'none' || section.style.display === '') {
-                section.style.display = 'block';
-            } else {
-                section.style.display = 'none';
-            }
-        }
-
+        // La lógica JS para mostrar/ocultar elementos se mantiene igual
         function togglePlaylistInputs() {
             var newPlaylistInput = document.getElementById('new-playlist-input');
             var existingPlaylistInput = document.getElementById('existing-playlist-input');
-            var existingPlaylistOptions = document.getElementById('existing-playlist-options');
+            // La sección de opciones de duplicados está ahora DENTRO de existing-playlist-input
+            // por lo que se muestra/oculta junto con ella. Ya no se necesita existingPlaylistOptions aquí.
 
             if (document.getElementById('new_playlist').checked) {
                 newPlaylistInput.style.display = 'block';
                 existingPlaylistInput.style.display = 'none';
-                existingPlaylistOptions.style.display = 'none';
+                // Los campos dentro de new-playlist-input se vuelven requeridos si es necesario
+                 document.getElementById('playlist_name').required = true;
             } else {
                 newPlaylistInput.style.display = 'none';
                 existingPlaylistInput.style.display = 'block';
-                existingPlaylistOptions.style.display = 'block';
+                 // Los campos dentro de existing-playlist-input se vuelven requeridos si es necesario
+                 document.getElementById('playlist_url').required = true;
+                 document.getElementById('playlist_name').required = false; // Asegurar que el nombre no sea requerido
             }
+             // Actualizar requeridos al cambiar
+             toggleTrackSourceInputs();
         }
 
         function toggleTrackSourceInputs() {
-            var fileInput = document.getElementById('json-file-input');
-            var pasteInput = document.getElementById('json-paste-input');
+            var fileInputDiv = document.getElementById('json-file-input');
+            var pasteInputDiv = document.getElementById('json-paste-input');
             var fileField = document.getElementById('json_file');
             var pasteField = document.getElementById('json_content');
+            var isFileSource = document.getElementById('source_file').checked;
 
-            if (document.getElementById('source_file').checked) {
-                fileInput.style.display = 'block';
-                pasteInput.style.display = 'none';
-                fileField.required = true;
-                pasteField.required = false;
-            } else {
-                fileInput.style.display = 'none';
-                pasteInput.style.display = 'block';
-                fileField.required = false;
-                pasteField.required = true;
+            fileInputDiv.style.display = isFileSource ? 'block' : 'none';
+            pasteInputDiv.style.display = isFileSource ? 'none' : 'block';
+
+            // Solo requerir uno de los dos, dependiendo de la selección
+            fileField.required = isFileSource;
+            pasteField.required = !isFileSource;
+
+            // Si se elige playlist existente, la URL es requerida
+            var isExistingPlaylist = document.getElementById('existing_playlist').checked;
+            if (document.getElementById('playlist_url')) { // Verificar que exista el elemento
+                 document.getElementById('playlist_url').required = isExistingPlaylist;
             }
+            // Si se elige nueva playlist, el nombre es requerido
+             if (document.getElementById('playlist_name')) { // Verificar que exista el elemento
+                 document.getElementById('playlist_name').required = !isExistingPlaylist;
+             }
         }
 
         // Inicializar el estado correcto al cargar la página
         document.addEventListener('DOMContentLoaded', function() {
+            // Inicializar visibilidad y requeridos de inputs de playlist
             togglePlaylistInputs();
-            toggleTrackSourceInputs();
+            // Inicializar visibilidad y requeridos de fuente de tracks
+            // toggleTrackSourceInputs() se llama dentro de togglePlaylistInputs, así que está cubierto.
         });
     </script>
 </body>
