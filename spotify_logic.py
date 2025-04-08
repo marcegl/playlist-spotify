@@ -83,7 +83,8 @@ def process_tracks(
     tracks_data: list[dict],
     playlist_name: str,
     playlist_url: str = None,
-    duplicate_option: str = 'add_all' # Opciones: 'add_all', 'add_new'
+    duplicate_option: str = 'add_all', # Opciones: 'add_all', 'add_new'
+    playlist_description: str = None # Nueva descripción personalizada
 ) -> dict:
     """
     Procesa una lista de tracks, los busca en Spotify y los añade a una playlist.
@@ -167,11 +168,12 @@ def process_tracks(
     else:
         # Crear nueva playlist
         try:
+            description_to_use = playlist_description if playlist_description else "Playlist creada desde JSON vía web"
             new_playlist = sp.user_playlist_create(
                 user=user_id,
                 name=playlist_name,
                 public=True,
-                description="Playlist creada/actualizada desde archivo JSON vía web"
+                description=description_to_use # Usar descripción
             )
             target_playlist_id = new_playlist["id"]
             final_playlist_url = new_playlist["external_urls"]["spotify"]

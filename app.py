@@ -31,6 +31,7 @@ def index():
         playlist_option = request.form.get('playlist_option') # 'new' or 'existing'
         playlist_name = request.form.get('playlist_name')
         playlist_url = request.form.get('playlist_url')
+        playlist_description = request.form.get('playlist_description', '') # Nuevo campo
         track_source = request.form.get('track_source') # 'file' or 'paste'
         json_content_paste = request.form.get('json_content')
         duplicate_option = request.form.get('duplicate_option', 'add_all') # 'add_all' or 'add_new'
@@ -125,6 +126,7 @@ def index():
             redirect_uri=redirect_uri,
             tracks_data=tracks_data,
             playlist_name=playlist_name if playlist_option == 'new' else None,
+            playlist_description=playlist_description if playlist_option == 'new' else None, # Pasar descripción
             playlist_url=playlist_url if playlist_option == 'existing' else None,
             duplicate_option=duplicate_option if playlist_option == 'existing' else 'add_all' # Pasar opción de duplicados solo si es relevante
         )
