@@ -26,11 +26,15 @@ La idea principal es aprovechar la capacidad de los LLMs para generar listas de 
     ```text
     Crea una lista de reproducción con música genial para disfrutar con amigos en una reunión. Quiero que empiece con canciones energéticas y animadas para levantar el ánimo durante la primera hora, y luego cambie a algo más chill y relajado para conversar, pero manteniendo un buen rollo.
 
-    **Instrucción Obligatoria (añadir al final de tu prompt):**
     El output debe ser en formato JSON, específicamente un array de objetos. Cada objeto representa una canción y debe contener obligatoriamente la clave "track" con el nombre de la canción. Opcionalmente, puede incluir las claves "artist", "album" y "year".
     ```
 
-2.  **Obtén el JSON:** El LLM debería devolverte un resultado similar a este:
+    *Instrucción obligatoria:*
+    ```text
+    El output debe ser en formato JSON, específicamente un array de objetos. Cada objeto representa una canción y debe contener obligatoriamente la clave "track" con el nombre de la canción. Opcionalmente, puede incluir las claves "artist", "album" y "year".
+    ```
+
+3.  **Obtén el JSON:** El LLM debería devolverte un resultado similar a este:
 
     ```json
     [
@@ -56,7 +60,7 @@ La idea principal es aprovechar la capacidad de los LLMs para generar listas de 
     ]
     ```
 
-3.  **Usa esta Herramienta:**
+4.  **Usa esta Herramienta:**
     *   Ejecuta la aplicación `Spotify Playlist Manager`.
     *   Abre la interfaz web.
     *   Pega el JSON obtenido en el área de texto correspondiente (o guarda el JSON en un archivo `.json` y súbelo).
